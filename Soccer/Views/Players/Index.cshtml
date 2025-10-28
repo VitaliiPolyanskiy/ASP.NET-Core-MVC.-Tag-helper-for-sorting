@@ -47,7 +47,7 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Age)
+                @(DateTime.Now.Year - item.BirthYear)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Position)
