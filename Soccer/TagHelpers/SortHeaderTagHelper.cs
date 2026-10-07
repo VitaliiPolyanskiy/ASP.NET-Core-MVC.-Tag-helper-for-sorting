@@ -5,43 +5,37 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Soccer.Models;
 
-namespace Soccer.TagHelpers
+namespace Soccer.TagHelpers;
+
+// Застосування первинного конструктора
+public class SortHeaderTagHelper(IUrlHelperFactory urlHelperFactory) : TagHelper
 {
-    public class SortHeaderTagHelper : TagHelper
+    public SortState Property { get; set; } // значення поточного властивості
+    public SortState Current { get; set; }  // значення активної властивості для сортування
+    public string? Action { get; set; }     // дія контролера
+    public bool Up { get; set; }            // сортування за зростанням/спаданням
+
+    [ViewContext] // Атрибут вказує механізму ASP.NET Core автоматично впровадити поточний контекст виконання представлення у цю властивість під час створення екземпляра Tag Helper-а.
+    [HtmlAttributeNotBound] // Атрибут забороняє рушію Razor шукати та прив'язувати цю властивість до однойменного HTML-атрибута в розмітці.
+    public ViewContext ViewContext { get; set; } = null!;
+
+    public override void Process(TagHelperContext context, TagHelperOutput output)
     {
-        public SortState Property { get; set; } // значение текущего свойства, для которого создается тег
-        public SortState Current { get; set; }  // значение активного свойства, выбранного для сортировки
-        public string? Action { get; set; }  // действие контроллера, на которое создается ссылка
-        public bool Up { get; set; }    // сортировка по возрастанию или убыванию
+        IUrlHelper urlHelper = urlHelperFactory.GetUrlHelper(ViewContext);
+        output.TagName = "a";
+        string? url = urlHelper.Action(Action, new { sortOrder = Property });
+        output.Attributes.SetAttribute("href", url);
+        output.Attributes.SetAttribute("class", "text-decoration-none text-dark fw-bold"); // Сучасна стилізація посилання
 
-        [ViewContext]
-        public ViewContext ViewContext { get; set; } = null!;
-
-        IUrlHelperFactory urlHelperFactory;
-        public SortHeaderTagHelper(IUrlHelperFactory helperFactory)
+        // Якщо поточна властивість відповідає обраній для сортування
+        if (Current == Property)
         {
-            urlHelperFactory = helperFactory;
-        }
+            TagBuilder tag = new("i");
+            tag.AddCssClass("bi"); // Заміна застарілого glyphicon на Bootstrap Icons
+            tag.AddCssClass(Up ? "bi-chevron-up" : "bi-chevron-down");
+            tag.Attributes.Add("style", "margin-left: 0.25rem; font-size: 0.8em;");
 
-        public override void Process(TagHelperContext context, TagHelperOutput output)
-        {
-            IUrlHelper urlHelper = urlHelperFactory.GetUrlHelper(ViewContext);
-            output.TagName = "a";
-            string? url = urlHelper.Action(Action, new { sortOrder = Property });
-            output.Attributes.SetAttribute("href", url);
-            // если текущее свойство имеет значение CurrentSort
-            if (Current == Property)
-            {
-                TagBuilder tag = new TagBuilder("i");
-                tag.AddCssClass("glyphicon");
-
-                if (Up == true)   // если сортировка по возрастанию
-                    tag.AddCssClass("glyphicon-chevron-up");
-                else   // если сортировка по убыванию
-                    tag.AddCssClass("glyphicon-chevron-down");
-
-                output.PreContent.AppendHtml(tag);
-            }
+            output.PostContent.AppendHtml(tag);
         }
     }
 }

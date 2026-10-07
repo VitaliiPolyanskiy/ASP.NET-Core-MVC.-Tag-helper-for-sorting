@@ -1,56 +1,37 @@
-﻿namespace Soccer.Models
+﻿namespace Soccer.Models;
+
+public class SortViewModel
 {
-    public class SortViewModel
+    public SortState NameSort { get; private set; }     // значення для сортування за ім'ям
+    public SortState AgeSort { get; private set; }      // значення для сортування за віком
+    public SortState PositionSort { get; private set; } // значення для сортування за позицією
+    public SortState TeamSort { get; private set; }     // значення для сортування за командою
+    public SortState Current { get; private set; }      // значення властивості, обраної для сортування
+    public bool Up { get; private set; }                // сортування за зростанням чи спаданням
+
+    public SortViewModel(SortState sortOrder)
     {
-        public SortState NameSort { get; set; } // значение для сортировки по имени
-        public SortState AgeSort { get; set; }    // значение для сортировки по возрасту
-        public SortState PositionSort { get; set; }    // значение для сортировки по позиции
-        public SortState TeamSort { get; set; }   // значение для сортировки по компании
-        public SortState Current { get; set; }     // значение свойства, выбранного для сортировки
-        public bool Up { get; set; }  // Сортировка по возрастанию или убыванию
+        // Значення за замовчуванням
+        NameSort = SortState.NameAsc;
+        AgeSort = SortState.AgeAsc;
+        PositionSort = SortState.PositionAsc;
+        TeamSort = SortState.TeamAsc;
 
-        public SortViewModel(SortState sortOrder)
+        // Використання логічного патерну (Pattern Matching)
+        Up = sortOrder is not (SortState.AgeDesc or SortState.NameDesc
+                            or SortState.PositionDesc or SortState.TeamDesc);
+
+        // Оптимізований switch-вираз замість громіздкого switch-statement
+        Current = sortOrder switch
         {
-            // значения по умолчанию
-            NameSort = SortState.NameAsc;
-            AgeSort = SortState.AgeAsc;
-            PositionSort = SortState.PositionAsc;
-            TeamSort = SortState.TeamAsc;
-            Up = true;
-
-            if (sortOrder == SortState.AgeDesc || sortOrder == SortState.NameDesc
-                || sortOrder == SortState.PositionDesc || sortOrder == SortState.TeamDesc)
-            {
-                Up = false;
-            }
-
-            switch (sortOrder)
-            {
-                case SortState.NameDesc:
-                    Current = NameSort = SortState.NameAsc;
-                    break;
-                case SortState.AgeAsc:
-                    Current = AgeSort = SortState.AgeDesc;
-                    break;
-                case SortState.AgeDesc:
-                    Current = AgeSort = SortState.AgeAsc;
-                    break;
-                case SortState.PositionAsc:
-                    Current = PositionSort = SortState.PositionDesc;
-                    break;
-                case SortState.PositionDesc:
-                    Current = PositionSort = SortState.PositionAsc;
-                    break;
-                case SortState.TeamAsc:
-                    Current = TeamSort = SortState.TeamDesc;
-                    break;
-                case SortState.TeamDesc:
-                    Current = TeamSort = SortState.TeamAsc;
-                    break;
-                default:
-                    Current = NameSort = SortState.NameDesc;
-                    break;
-            }
-        }
+            SortState.NameDesc => NameSort = SortState.NameAsc,
+            SortState.AgeAsc => AgeSort = SortState.AgeDesc,
+            SortState.AgeDesc => AgeSort = SortState.AgeAsc,
+            SortState.PositionAsc => PositionSort = SortState.PositionDesc,
+            SortState.PositionDesc => PositionSort = SortState.PositionAsc,
+            SortState.TeamAsc => TeamSort = SortState.TeamDesc,
+            SortState.TeamDesc => TeamSort = SortState.TeamAsc,
+            _ => NameSort = SortState.NameDesc
+        };
     }
 }

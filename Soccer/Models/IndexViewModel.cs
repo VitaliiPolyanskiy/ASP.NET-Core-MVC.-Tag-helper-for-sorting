@@ -1,8 +1,8 @@
-﻿namespace Soccer.Models
+﻿namespace Soccer.Models;
+
+public class IndexViewModel
 {
-    public class IndexViewModel
-    {
-        public IEnumerable<Players> Players { get; set; } = new List<Players>();
-        public SortViewModel SortViewModel { get; set; } = new SortViewModel(SortState.NameAsc);
-    }
+    // Використання сучасного виразу колекції [] замість new List<Players>()
+    public IEnumerable<Player> Players { get; set; } = [];
+    public SortViewModel SortViewModel { get; set; } = new(SortState.NameAsc);
 }
